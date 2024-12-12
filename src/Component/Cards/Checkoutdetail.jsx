@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 
 const api = import.meta.env.VITE_API
 const Checkoutdetail = () => {
   const detail = useSelector((state) => state.checkout.userPurchase)
-
+  const [loading, setLoading] = useState(false)
   const data = [
     {
       id: 1,
@@ -22,8 +22,7 @@ const Checkoutdetail = () => {
   ]
 
   const checkout = async (ammount) => {
-    console.log(ammount);
-
+    setLoading(true);
     try {
       const { data: { key } } = await axios.get(`${api}/getkey`)
       const { data: { orders } } = await axios.post(`${api}/checkout`, {
@@ -54,8 +53,11 @@ const Checkoutdetail = () => {
       };
       var rzp1 = new window.Razorpay(options);
       rzp1.open();
+      setLoading(false);
     } catch (error) {
+      alert("something went wrong please try again ")
       console.error("Error during checkout", error)
+      setLoading(false);
     }
   }
 
@@ -104,9 +106,11 @@ const Checkoutdetail = () => {
         <div className='sm:flex w-full items-center justify-between'>
           <button
             onClick={() => checkout(detail.price)}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md transition-all duration-300 ease-in-out"
+            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md transition-all duration-300 ease-in-out ${loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            disabled={loading} // Disable button when loading
           >
-            Buy Now
+            {loading ? "Processing..." : "Buy Now"}
           </button>
         </div>
       </div>
